@@ -26,6 +26,7 @@ clean:
 eggs: build/master.egg
 
 build/master.egg:
+	$(Q)mkdir -p build
 	PYTHONPATH=py UPSETO_JOIN_PYTHON_NAMESPACES=yes python -m upseto.packegg --entryPoint=py/rackattack/dryrun/master/main.py --output=$@ --createDeps=$@.deps --takeSitePackages --joinPythonNamespaces
 -include build/master.egg.deps
 
