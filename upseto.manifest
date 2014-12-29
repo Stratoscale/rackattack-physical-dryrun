@@ -1,3 +1,5 @@
 requirements:
 - hash: e55359271d8f71f63f7c2cfa08f4ccf2ba0cbd99
   originURL: https://github.com/Stratoscale/rackattack-physical.git
+- hash: 389d66d1af1b7ee78000201b8b7c0defa66dbf6b
+  originURL: https://github.com/Stratoscale/inaugurator.git
