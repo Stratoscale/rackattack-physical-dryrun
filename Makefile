@@ -64,4 +64,5 @@ RPMS_TO_INSTALL = \
 	dnsmasq \
 	syslinux \
 	ipmitool \
+	strace \
 

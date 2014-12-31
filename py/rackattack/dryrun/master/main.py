@@ -9,6 +9,7 @@ from rackattack.physical import ipmi
 from rackattack.physical import serialoverlan
 from rackattack.dryrun.master import network
 from rackattack.common import globallock
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--hostID", required=True)
@@ -37,6 +38,9 @@ def inaugurateDone():
     doneEvent.set()
 
 
+network.dropFirewall()
+logging.info("MyIP: %(ip)s", dict(ip=network.myIP()))
+
 tftpbootInstance = tftpboot.TFTPBoot(
     netmask=network.netmask(),
     inauguratorServerIP=network.myIP(),
@@ -53,6 +57,9 @@ dnsmasqInstance = dnsmasq.DNSMasq(
     lastIP=args.ipAddress,
     gateway=network.gateway(),
     nameserver=network.myIP())
+logging.info("Sleeping 1 second to let dnsmasq go up, so it can receive SIGHUP")
+time.sleep(1)
+logging.info("Done Sleeping 1 second to let dnsmasq go up, so it can receive SIGHUP")
 inaugurateInstance = inaugurate.Inaugurate(bindHostname=network.myIP())
 with globallock.lock:
     dnsmasqInstance.add(args.macAddress, args.ipAddress)
@@ -66,7 +73,7 @@ ipmiInstance = ipmi.IPMI(args.ipmiHost, args.ipmiUsername, args.ipmiPassword)
 ipmiInstance.powerCycle()
 try:
     logging.info("Waiting for inaugurator to check in")
-    checkInEvent.wait(4 * 60)
+    checkInEvent.wait(6 * 60)
     if not checkInEvent.isSet():
         raise Exception("Timeout waiting for inaugurator to checkin")
     logging.info("Inaugurator checked in, waiting for inaugurator to complete")

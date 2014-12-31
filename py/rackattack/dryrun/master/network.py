@@ -20,3 +20,7 @@ def netmask():
 def gateway():
     output = subprocess.check_output(['ip', 'route', 'show'])
     return re.search(r"default\s+via\s+(\S+)\s", output).group(1)
+
+
+def dropFirewall():
+    subprocess.check_output(["iptables", "--flush"])

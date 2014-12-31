@@ -6,6 +6,8 @@ from rackattack import clientfactory
 from rackattack import api
 from rackattack.ssh import connection
 import subprocess
+import socket
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--rackYaml", required=True)
@@ -32,17 +34,24 @@ ssh.waitForTCPServer()
 ssh.connect()
 logging.info("Connected to ssh")
 ssh.ftp.putFile("/tmp/master.egg", "build/master.egg")
-print ssh.run.script(
-    "PYTHONPATH=/tmp/master.egg python -m rackattack.dryrun.master.main "
-    "--hostID=%(targetNodeID)s --macAddress=%(macAddress)s "
-    "--ipmiHost=%(ipmiHost)s --ipmiUsername=%(ipmiUsername)s "
-    "--ipmiPassword=%(ipmiPassword)s --osmosisServerIP=%(osmosisServerIP)s "
-    "--ipAddress=%(ipAddress)s --label=%(label)s" % dict(
-        targetNodeID=targetNode['id'],
-        macAddress=targetNode['primaryMAC'],
-        ipmiHost=targetNode['ipmiLogin']['hostname'],
-        ipmiUsername=targetNode['ipmiLogin']['username'],
-        ipmiPassword=targetNode['ipmiLogin']['password'],
-        osmosisServerIP=args.osmosisServerIP,
-        ipAddress=args.ipAddress,
-        label=label))
+try:
+    print ssh.run.script(
+        "PYTHONPATH=/tmp/master.egg "
+        "strace -fF -o /tmp/trace "
+        "python -m rackattack.dryrun.master.main "
+        "--hostID=%(targetNodeID)s --macAddress=%(macAddress)s "
+        "--ipmiHost=%(ipmiHost)s --ipmiUsername=%(ipmiUsername)s "
+        "--ipmiPassword=%(ipmiPassword)s --osmosisServerIP=%(osmosisServerIP)s "
+        "--ipAddress=%(ipAddress)s --label=%(label)s" % dict(
+            targetNodeID=targetNode['id'],
+            macAddress=targetNode['primaryMAC'],
+            ipmiHost=socket.gethostbyname(targetNode['ipmiLogin']['hostname']),
+            ipmiUsername=targetNode['ipmiLogin']['username'],
+            ipmiPassword=targetNode['ipmiLogin']['password'],
+            osmosisServerIP=args.osmosisServerIP,
+            ipAddress=args.ipAddress,
+            label=label))
+except:
+    import traceback
+    traceback.print_exc()
+    time.sleep(1000000)
