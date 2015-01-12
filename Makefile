@@ -65,4 +65,7 @@ RPMS_TO_INSTALL = \
 	syslinux \
 	ipmitool \
 	strace \
+	zip \
+	tcpdump \
+	unzip
 
