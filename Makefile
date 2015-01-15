@@ -1,4 +1,5 @@
 ROOTFS = build/root
+YUMCACHE:=http://localhost:1012/yumcache.strato:1012
 
 ifeq ($(V),1)
   Q =
@@ -41,13 +42,14 @@ $(ROOTFS): build/smartctl
 	sudo chmod 644 /usr/share/inaugurator/*
 	sudo cp ../inaugurator/dist/inaugurator-1.0-py2.7.egg $(ROOTFS).tmp/tmp
 	sudo chroot $(ROOTFS).tmp easy_install /tmp/inaugurator-1.0-py2.7.egg
+	sudo chroot $(ROOTFS).tmp yum install --assumeyes $(YUMCACHE)/mirrors.kernel.org/fedora-epel/7/x86_64/m/msr-tools-1.3-1.el7.x86_64.rpm
 	sudo cp $< $(ROOTFS).tmp/usr/sbin/
 	sudo rm -fr $(ROOTFS).tmp/tmp/*
 	sudo mv $(ROOTFS).tmp $(ROOTFS)
 
 build/smartctl:
 	-mkdir build
-	cd build; wget http://localhost:1012/yumcache:1012/sourceforge.net/projects/smartmontools/files/smartmontools/6.3/smartmontools-6.3.tar.gz
+	cd build; wget $(YUMCACHE)/sourceforge.net/projects/smartmontools/files/smartmontools/6.3/smartmontools-6.3.tar.gz
 	cd build; tar -xf smartmontools-6.3.tar.gz
 	cd build/smartmontools-6.3; ./configure
 	cd build/smartmontools-6.3; make
