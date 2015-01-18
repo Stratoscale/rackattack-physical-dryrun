@@ -45,6 +45,7 @@ tftpbootInstance = tftpboot.TFTPBoot(
     netmask=network.netmask(),
     inauguratorServerIP=network.myIP(),
     osmosisServerIP=args.osmosisServerIP,
+    inauguratorGatewayIP=network.myIP(),
     rootPassword="dryrun",
     withLocalObjectStore=True)
 dnsmasq.DNSMasq.eraseLeasesFile()
@@ -61,7 +62,7 @@ logging.info("Sleeping 1 second to let dnsmasq go up, so it can receive SIGHUP")
 time.sleep(1)
 logging.info("Done Sleeping 1 second to let dnsmasq go up, so it can receive SIGHUP")
 inaugurateInstance = inaugurate.Inaugurate(bindHostname=network.myIP())
-with globallock.lock:
+with globallock.lock():
     dnsmasqInstance.add(args.macAddress, args.ipAddress)
     inaugurateInstance.register(
         ipAddress=args.ipAddress,
